@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rea Mo — Paste a URL, get the build sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e9e9e7; --ink:#1d1a15; --ink-soft:#4a453c; --muted:#8a8478;
+  --card:#fbfaf6; --line:#d9d5c9; --accent:#c2410c; --accent-soft:#f5e6da;
+  --ok:#2f7d4f; --warn:#b97f0f;
+  --shadow:0 12px 32px rgba(96,88,70,.13), 0 2px 6px rgba(96,88,70,.08);
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Geist","Noto Sans TC",-apple-system,"Segoe UI",sans-serif;
+  min-height:100vh; line-height:1.55;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.055;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+.wrap{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:0 22px 90px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 0}
+.brand{font-family:"Dela Gothic One",sans-serif;font-size:15px;letter-spacing:.04em}
+.brand small{font-family:"Geist","Noto Sans TC",sans-serif;font-weight:500;color:var(--muted);font-size:11px;margin-left:10px;letter-spacing:.02em}
+.lang-toggle{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
+.lang-toggle button{border:0;background:transparent;padding:7px 16px;font:600 12px "Geist","Noto Sans TC",sans-serif;color:var(--muted);cursor:pointer;letter-spacing:.05em}
+.lang-toggle button.on{background:var(--ink);color:#f4f2ec}
+.hero{padding:44px 0 8px;text-align:left}
+.kicker{display:inline-block;font:600 11px "Geist","Noto Sans TC",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:6px 14px;margin-bottom:22px;background:var(--accent-soft)}
+h1.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:clamp(3rem,9vw,6.2rem);line-height:.98;letter-spacing:.01em;margin-bottom:18px}
+.tagline{font-size:clamp(1rem,2.4vw,1.25rem);color:var(--ink-soft);max-width:640px;margin-bottom:34px}
+.tagline b{color:var(--ink)}
+.inputrow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.inputrow input{
+  flex:1 1 320px;font:500 16px "Geist","Noto Sans TC",sans-serif;color:var(--ink);
+  background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:15px 18px;outline:none;
+}
+.inputrow input:focus{border-color:var(--ink)}
+.btn{border:0;border-radius:12px;padding:15px 26px;font:700 15px "Geist","Noto Sans TC",sans-serif;cursor:pointer;letter-spacing:.02em}
+.btn-go{background:var(--ink);color:#f4f2ec}
+.btn-go:hover{background:#000}
+.btn-go:disabled{opacity:.5;cursor:wait}
+.samples{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:26px;font-size:13px;color:var(--muted)}
+.chipbtn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font:500 12.5px "Geist","Noto Sans TC",sans-serif;color:var(--ink-soft);cursor:pointer}
+.chipbtn:hover{border-color:var(--ink);color:var(--ink)}
+.logcard{background:#201c17;color:#d8d2c2;border-radius:var(--r);padding:18px 20px;font:12.5px/1.9 ui-monospace,SFMono-Regular,Menlo,monospace;margin:6px 0 26px;display:none;box-shadow:var(--shadow)}
+.logcard.show{display:block}
+.logcard .ok{color:#9fd3a8}.logcard .err{color:#ff9d8a}.logcard .run{color:#f0c979}
+#dossier{display:grid;gap:18px;margin-top:6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px 28px;box-shadow:var(--shadow)}
+.card h2{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:1.35rem;margin-bottom:4px;letter-spacing:.01em}
+.card .sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px 18px}
+.kv .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.kv .v{font-size:15px;font-weight:600;word-break:break-word}
+.kv .v small{font-weight:400;color:var(--muted)}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 13px;font-size:12.5px;font-weight:600;margin:0 6px 8px 0;background:#fff}
+.pill.hot{background:var(--ink);color:#f4f2ec;border-color:var(--ink)}
+.pill.good{border-color:var(--ok);color:var(--ok)}
+.pill.bad{border-color:#b3402e;color:#b3402e}
+.langbar{margin:10px 0 4px}
+.langbar .row{display:flex;align-items:center;gap:12px;margin-bottom:9px;font-size:13px}
+.langbar .nm{width:110px;flex:none;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.langbar .tr{flex:1;height:12px;background:#e2ded2;border-radius:99px;overflow:hidden}
+.langbar .fl{height:100%;background:linear-gradient(90deg,#c2410c,#e08a3c);border-radius:99px}
+.langbar .pc{width:52px;flex:none;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.dirgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.dir{background:#f2f0e9;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px}
+.dir b{font-variant-numeric:tabular-nums}
+.exttable{width:100%;border-collapse:collapse;font-size:13.5px}
+.exttable td{padding:7px 4px;border-bottom:1px dashed var(--line)}
+.exttable td:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.verdict{list-style:none;display:grid;gap:10px}
+.verdict li{background:#f4f2ea;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:11px 15px;font-size:14px}
+.tag-heur{display:inline-block;font:700 10px "Geist",sans-serif;letter-spacing:.14em;background:var(--ink);color:#f4f2ec;border-radius:5px;padding:2px 8px;margin-right:9px;vertical-align:1px}
+.aibox{margin-top:8px}
+.aigrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.aigrid label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.aigrid input{width:100%;font:500 14px "Geist",sans-serif;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:none}
+.aigrid input:focus{border-color:var(--ink)}
+.ainote{font-size:12.5px;color:var(--muted);margin:10px 0 16px}
+.aiout{background:#201c17;color:#d8d2c2;border-radius:12px;padding:18px 20px;font-size:14px;line-height:1.7;white-space:pre-wrap;display:none;margin-top:14px}
+.aiout.show{display:block}
+footer{margin-top:54px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+footer a{color:var(--ink);font-weight:600}
+.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:44px 26px;text-align:center;color:var(--muted);font-size:14.5px;background:rgba(251,250,246,.5)}
+@media(max-width:640px){
+  .card{padding:20px}
+  .aigrid{grid-template-columns:1fr}
+  .kv{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">REA&nbsp;MO<small data-i18n="brandSub">OpenX · Open Source Lab</small></div>
+    <div class="lang-toggle" role="group" aria-label="language">
+      <button id="btn-en" class="on">EN</button><button id="btn-zh">中</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <span class="kicker" data-i18n="kicker">STRUCTURAL X-RAY FOR CODE &amp; SITES</span>
+    <h1 class="display">REA&nbsp;MO</h1>
+    <p class="tagline" data-i18n-html="tagline">Paste a <b>GitHub repo</b> or a <b>website URL</b> — get a structured build sheet: tech stack, file anatomy, framework fingerprints and honest heuristic verdicts. No account, no backend.</p>
+    <div class="inputrow">
+      <input id="target" data-i18n-ph="inputPh" placeholder="github.com/owner/repo · owner/repo · example.com" autocomplete="off" spellcheck="false">
+      <button class="btn btn-go" id="btn-go" data-i18n="analyze">Analyze</button>
+    </div>
+    <div class="samples">
+      <span data-i18n="tryLabel">Try:</span>
+      <button class="chipbtn" data-sample="gh:morluto/rea">morluto/rea</button>
+      <button class="chipbtn" data-sample="gh:artzdesignmo/halftone-mo">artzdesignmo/halftone-mo</button>
+      <button class="chipbtn" data-sample="web:https://openx-mo.vercel.app">openx-mo.vercel.app</button>
+      <button class="chipbtn" data-sample="web:https://example.com">example.com</button>
+    </div>
+    <div class="logcard" id="logcard"><div id="log"></div></div>
+  </div>
+
+  <div id="dossier"><div class="empty" data-i18n="emptyState">Your dossier will appear here — overview, tech stack, structure, signals and verdict.</div></div>
+
+  <div class="card aibox" style="margin-top:18px">
+    <h2 data-i18n-html="aiTitle">Interpret with AI <span style="font-family:Geist;font-size:12px;color:var(--muted)">(optional · BYOK)</span></h2>
+    <p class="sub" data-i18n="aiSub">Bring your own key. The tool is fully useful without it — this only adds a plain-language reading of the findings above. Your key stays in this browser's localStorage and is sent only to the endpoint you choose.</p>
+    <div class="aigrid">
+      <div><label data-i18n="aiEndpoint">Endpoint (OpenAI-compatible)</label><input id="ai-endpoint" value="https://api.openai.com/v1/chat/completions" spellcheck="false"></div>
+      <div><label data-i18n="aiModel">Model</label><input id="ai-model" value="gpt-4o-mini" spellcheck="false"></div>
+    </div>
+    <div class="aigrid" style="grid-template-columns:1fr">
+      <div><label data-i18n="aiKey">API key</label><input id="ai-key" type="password" data-i18n-ph="aiKeyPh" placeholder="sk-…" autocomplete="off"></div>
+    </div>
+    <button class="btn btn-go" id="btn-ai" data-i18n="aiBtn">Interpret findings with AI</button>
+    <p class="ainote" data-i18n="aiNote">No key = no AI call, ever. The analysis above never pretends a model is involved.</p>
+    <div class="aiout" id="aiout"></div>
+  </div>
+
+  <footer>
+    <span>Rea Mo · MIT · <span data-i18n="footNote">heuristic, client-side, honest</span></span>
+    <span><a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener">Buy Me a Coffee</a> · <a href="https://openx-mo.vercel.app" target="_blank" rel="noopener">openx-mo</a></span>
+  </footer>
+</div>
+<pre id="autotest-result" style="display:none"></pre>
+<script>
+"use strict";
+/* ============================================================
+   Rea Mo — structural x-ray for GitHub repos & websites.
+   Zero dependencies. All analysis runs in the browser.
+   ============================================================ */
+
+/* ---------------- i18n ---------------- */
+const STR = {
+en:{
+  brandSub:"OpenX · Open Source Lab", kicker:"STRUCTURAL X-RAY FOR CODE & SITES",
+  tagline:'Paste a <b>GitHub repo</b> or a <b>website URL</b> — get a structured build sheet: tech stack, file anatomy, framework fingerprints and honest heuristic verdicts. No account, no backend.',
+  inputPh:"github.com/owner/repo · owner/repo · example.com", analyze:"Analyze", analyzing:"Analyzing…",
+  tryLabel:"Try:", emptyState:"Your dossier will appear here — overview, tech stack, structure, signals and verdict.",
+  aiTitle:'Interpret with AI <span style="font-family:Geist;font-size:12px;color:var(--muted)">(optional · BYOK)</span>',
+  aiSub:"Bring your own key. The tool is fully useful without it — this only adds a plain-language reading of the findings above. Your key stays in this browser's localStorage and is sent only to the endpoint you choose.",
+  aiEndpoint:"Endpoint (OpenAI-compatible)", aiModel:"Model", aiKey:"API key", aiKeyPh:"sk-…",
+  aiBtn:"Interpret findings with AI", aiWorking:"Asking your model…",
+  aiNote:"No key = no AI call, ever. The analysis above never pretends a model is involved.",
+  footNote:"heuristic, client-side, honest",
+  logFetching:"Fetching", logDone:"done", logFail:"failed",
+  sRepoMeta:"repo metadata", sLangs:"language stats", sTree:"file tree", sReadme:"README", sPkg:"package.json",
+  sHtml:"page HTML", sParse:"parsing HTML",
+  errInvalid:"That doesn't look like a repo or a URL. Try owner/repo or example.com.",
+  errGh404:"GitHub returned 404 — is the repo public and the name spelled right?",
+  errRate:"GitHub API rate limit hit (60/hr for anonymous). Wait a bit and retry.",
+  errFetch:"Could not fetch that page through any proxy. It may block proxies, require JS rendering, or be offline — I won't invent data.",
+  errAiKey:"Paste an API key first (stored only in this browser).",
+  errAi:"AI call failed: ",
+  secOverview:"Overview", secTech:"Tech stack", secStruct:"Structure", secSignals:"Signals", secVerdict:"Verdict",
+  heuristic:"HEURISTIC",
+  languages:"Languages", frameworks:"Detected frameworks & tooling", noFw:"No known framework signatures matched.",
+  topDirs:"Top-level directories", exts:"Files by extension", totalFiles:"files in tree", treeTrunc:"(tree truncated by GitHub — counts are a lower bound)",
+  stars:"Stars", forks:"Forks", watchers:"Watchers", issues:"Open issues", license:"License", created:"Created", updated:"Updated",
+  size:"Size", branch:"Default branch", topics:"Topics", homepage:"Homepage", primaryLang:"Main language", desc:"Description",
+  scripts:"scripts", deps:"dependencies",
+  links:"Links", intExt:"internal / external", imgs:"Images", scriptsN:"Scripts", stylesN:"Stylesheets",
+  title:"Title", metaDesc:"Meta description", langAttr:"HTML lang", outline:"Heading outline",
+  aiVerdictTitle:"AI interpretation", sysPrompt:"You are a senior software analyst. Read the JSON build-sheet and give a concise plain-language verdict: what this thing is, how it's built, and 3 notable observations. No markdown tables; short paragraphs and bullets are fine. Be honest about uncertainty."
+},
+zh:{
+  brandSub:"OpenX · 開源實驗室", kicker:"程式碼與網站的結構 X 光",
+  tagline:'貼上 <b>GitHub repo</b> 或 <b>網站網址</b>，即刻得到結構化建造清單：技術棧、檔案解剖、框架指紋同誠實標示的啟發式結論。唔使帳戶，唔使後端。',
+  inputPh:"github.com/owner/repo · owner/repo · example.com", analyze:"分析", analyzing:"分析緊…",
+  tryLabel:"試下：", emptyState:"分析報告會喺呢度出現——總覽、技術棧、結構、訊號同結論。",
+  aiTitle:'用 AI 解讀 <span style="font-family:Geist;font-size:12px;color:var(--muted)">（可選 · 自備 key）</span>',
+  aiSub:"自備 API key。冇 key 照樣用到全部功能——呢個只係將上面嘅發現翻譯做人話。key 只會留喺你瀏覽器嘅 localStorage，只會送去你指定嘅 endpoint。",
+  aiEndpoint:"Endpoint（OpenAI-compatible）", aiModel:"模型", aiKey:"API key", aiKeyPh:"sk-…",
+  aiBtn:"叫 AI 解讀分析結果", aiWorking:"問緊你嘅模型…",
+  aiNote:"冇 key 就唔會有 AI call。上面嘅分析永遠唔會扮有模型參與。",
+  footNote:"啟發式 · 純前端 · 誠實",
+  logFetching:"抓取緊", logDone:"完成", logFail:"失敗",
+  sRepoMeta:"repo 元資料", sLangs:"語言統計", sTree:"檔案樹", sReadme:"README", sPkg:"package.json",
+  sHtml:"頁面 HTML", sParse:"解析 HTML 緊",
+  errInvalid:"睇落唔似 repo 又唔似網址，試下 owner/repo 或者 example.com。",
+  errGh404:"GitHub 回 404——個 repo 係咪公開？名有冇打錯？",
+  errRate:"撞到 GitHub API 限流（匿名每小時 60 次），等陣再試。",
+  errFetch:"經任何 proxy 都抓唔到呢頁——可能擋 proxy、要 JS 渲染，或者已經 offline。我唔會老作數據。",
+  errAiKey:"先貼 API key（只存喺呢個瀏覽器）。",
+  errAi:"AI call 失敗：",
+  secOverview:"總覽", secTech:"技術棧", secStruct:"結構", secSignals:"訊號", secVerdict:"結論",
+  heuristic:"啟發式",
+  languages:"語言分佈", frameworks:"偵測到嘅框架同工具", noFw:"冇命中已知框架特徵。",
+  topDirs:"頂層目錄", exts:"副檔名統計", totalFiles:"個檔案", treeTrunc:"（GitHub 截斷咗檔案樹——數字只係下限）",
+  stars:"Stars", forks:"Forks", watchers:"Watchers", issues:"Open issues", license:"授權", created:"建立", updated:"更新",
+  size:"大小", branch:"預設分支", topics:"Topics", homepage:"主頁", primaryLang:"主要語言", desc:"簡介",
+  scripts:"個 scripts", deps:"個 dependencies",
+  links:"連結", intExt:"內部 / 外部", imgs:"圖片", scriptsN:"Script", stylesN:"樣式表",
+  title:"標題", metaDesc:"Meta 描述", langAttr:"HTML lang", outline:"標題大綱",
+  aiVerdictTitle:"AI 解讀", sysPrompt:"你係資深軟件分析師。讀呢份 JSON 建造清單，用簡潔白話畀結論：呢舊嘢係咩、點樣砌出嚟、同 3 點值得留意嘅觀察。唔用 markdown 表格，短段落加點列就得。唔肯定就老實講。"
+}};
+let LANG = localStorage.getItem("reamo-lang") || "en";
+const t = k => (STR[LANG] && STR[LANG][k]) || STR.en[k] || k;
+
+/* ---------------- helpers ---------------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDate = iso => { try{ return new Date(iso).toISOString().slice(0,10); }catch(e){ return iso; } };
+const fmtKB = kb => kb>1024 ? (kb/1024).toFixed(1)+" MB" : Math.round(kb)+" KB";
+function logStep(msg, state){ // state: run|ok|err — honest log of real steps only
+  const log=$("log"); $("logcard").classList.add("show");
+  const line=document.createElement("div");
+  line.innerHTML = state==="ok" ? `<span class="ok">✓</span> ${esc(msg)} — ${esc(t("logDone"))}`
+    : state==="err" ? `<span class="err">✗</span> ${esc(msg)} — ${esc(t("logFail"))}`
+    : `<span class="run">…</span> ${esc(msg)}`;
+  log.appendChild(line);
+}
+function clearLog(){ $("log").innerHTML=""; $("logcard").classList.remove("show"); }
+function classify(input){
+  const s=(input||"").trim().replace(/\/$/,"");
+  if(!s) return {type:"invalid"};
+  const gm=s.match(/github\.com\/([\w.\-]+)\/([\w.\-]+)/i);
+  if(gm) return {type:"github", owner:gm[1], repo:gm[2].replace(/\.git$/i,"")};
+  if(/^[\w.\-]+\/[\w.\-]+$/.test(s)) { const [o,r]=s.split("/"); return {type:"github", owner:o, repo:r.replace(/\.git$/i,"")}; }
+  let url=s; if(!/^https?:\/\//i.test(url)) url="https://"+url;
+  try{ new URL(url); return {type:"web", url}; }catch(e){ return {type:"invalid"}; }
+}
+async function gh(path){
+  const r=await fetch("https://api.github.com"+path,{headers:{"Accept":"application/vnd.github+json"}});
+  if(r.status===403){ const j=await r.json().catch(()=>({})); if(/rate limit/i.test(j.message||"")) throw new Error("RATE"); }
+  if(r.status===404) throw new Error("GH404");
+  if(!r.ok) throw new Error("GH"+r.status);
+  return r.json();
+}
+function b64decode(b64){
+  const bin=atob(b64.replace(/\s/g,"")); const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+/* ---------------- GitHub analysis ---------------- */
+const DEP_FW=[ // [dependency substring, label]
+  ["next","Next.js"],["nuxt","Nuxt"],["@angular/core","Angular"],["svelte","Svelte"],["gatsby","Gatsby"],
+  ["remix","Remix"],["astro","Astro"],["react","React"],["vue","Vue"],["solid-js","SolidJS"],
+  ["express","Express"],["fastify","Fastify"],["koa","Koa"],["hono","Hono"],["nest","NestJS"],
+  ["electron","Electron"],["tauri","Tauri"],["vite","Vite"],["webpack","Webpack"],["rollup","Rollup"],
+  ["esbuild","esbuild"],["tailwindcss","Tailwind CSS"],["bootstrap","Bootstrap"],["sass","Sass"],
+  ["typescript","TypeScript"],["prisma","Prisma"],["typeorm","TypeORM"],["mongoose","Mongoose"],
+  ["jest","Jest"],["vitest","Vitest"],["playwright","Playwright"],["cypress","Cypress"],["mocha","Mocha"],
+  ["eslint","ESLint"],["prettier","Prettier"],["zod","Zod"],["redux","Redux"],["zustand","Zustand"],
+  ["three","Three.js"],["d3","D3.js"],["tensorflow","TensorFlow"],["torch","PyTorch"]
+];
+const FILE_FW=[ // [path regex, label]
+  [/^Dockerfile$/i,"Docker"],[/^docker-compose.*\.ya?ml$/i,"Docker Compose"],
+  [/^\.github\/workflows\//i,"GitHub Actions"],[/^next\.config\./i,"Next.js"],
+  [/^nuxt\.config\./i,"Nuxt"],[/^vite\.config\./i,"Vite"],[/^svelte\.config\./i,"SvelteKit"],
+  [/^astro\.config\./i,"Astro"],[/^tailwind\.config\./i,"Tailwind CSS"],[/^tsconfig\.json$/i,"TypeScript"],
+  [/^requirements\.txt$/i,"Python · pip"],[/^Cargo\.toml$/i,"Rust · Cargo"],[/^go\.mod$/i,"Go modules"],
+  [/^Gemfile$/i,"Ruby · Bundler"],[/^composer\.json$/i,"PHP · Composer"],[/^pom\.xml$/i,"Java · Maven"],
+  [/^build\.gradle/i,"Gradle"],[/^Package\.swift$/i,"Swift PM"],[/^pyproject\.toml$/i,"Python · pyproject"],
+  [/^vercel\.json$/i,"Vercel"],[/^netlify\.toml$/i,"Netlify"],[/^wrangler\.toml/i,"Cloudflare Workers"]
+];
+async function analyzeGitHub(owner,repo){
+  logStep(`${t("logFetching")} ${t("sRepoMeta")}`,"run");
+  const meta=await gh(`/repos/${owner}/${repo}`); logStep(t("sRepoMeta"),"ok");
+  logStep(`${t("logFetching")} ${t("sLangs")}`,"run");
+  const langs=await gh(`/repos/${owner}/${repo}/languages`).catch(()=>({})); logStep(t("sLangs"),"ok");
+  logStep(`${t("logFetching")} ${t("sTree")}`,"run");
+  let tree=null, branchUsed=meta.default_branch||"main";
+  for(const b of [branchUsed,"main","master"]){
+    try{ tree=await gh(`/repos/${owner}/${repo}/git/trees/${b}?recursive=1`); branchUsed=b; break; }
+    catch(e){ if(e.message!=="GH404"&&e.message!=="GH422") throw e; }
+  }
+  if(!tree) throw new Error("GH404");
+  logStep(`${t("sTree")} (${branchUsed})`,"ok");
+  const paths=(tree.tree||[]).filter(n=>n.type==="blob").map(n=>n.path);
+  // README
+  logStep(`${t("logFetching")} ${t("sReadme")}`,"run");
+  let readme=null;
+  try{ const r=await gh(`/repos/${owner}/${repo}/readme`); readme=b64decode(r.content).slice(0,600); logStep(t("sReadme"),"ok"); }
+  catch(e){ logStep(t("sReadme"),"err"); }
+  // package.json
+  logStep(`${t("logFetching")} ${t("sPkg")}`,"run");
+  let pkg=null;
+  if(paths.some(p=>p==="package.json"||p.endsWith("/package.json"))){
+    try{ const c=await gh(`/repos/${owner}/${repo}/contents/package.json?ref=${branchUsed}`); pkg=JSON.parse(b64decode(c.content)); logStep(t("sPkg"),"ok"); }
+    catch(e){ logStep(t("sPkg"),"err"); }
+  } else logStep(t("sPkg"),"err");
+  // frameworks
+  const fw=new Set();
+  if(pkg){ const all=Object.assign({},pkg.dependencies,pkg.devDependencies);
+    for(const [sub,label] of DEP_FW) if(Object.keys(all).some(d=>d.toLowerCase().includes(sub))) fw.add(label); }
+  for(const p of paths) for(const [re,label] of FILE_FW) if(re.test(p)){ fw.add(label); break; }
+  // structure
+  const dirs={}, exts={};
+  for(const p of paths){
+    const ext=(p.split(".").pop()||"").toLowerCase();
+    if(p.includes("/")){ const d=p.split("/")[0]; dirs[d]=(dirs[d]||0)+1; }
+    if(/^[a-z0-9]{1,5}$/.test(ext)) exts[ext]=(exts[ext]||0)+1;
+  }
+  const topDirs=Object.entries(dirs).sort((a,b)=>b[1]-a[1]).slice(0,9);
+  const topExts=Object.entries(exts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  // signals
+  const has=re=>paths.some(p=>re.test(p));
+  const signals=[
+    ["README", !!readme, true],["LICENSE", has(/^LICENSE/i), true],
+    ["CI", has(/^\.github\/workflows\//i), true],["Tests", has(/test|spec/i), true],
+    ["Docker", has(/^Dockerfile/i), true],["Docs", has(/^docs?\//i), true],
+    ["Changelog", has(/^CHANGELOG/i), true],["Contributing", has(/^CONTRIBUTING/i), true],
+    ["Lockfile", has(/package-lock\.json$|yarn\.lock$|pnpm-lock\.yaml$|Cargo\.lock$|poetry\.lock$/i), true],
+    ["Homepage", !!meta.homepage, true]
+  ];
+  return {kind:"github", meta, langs, branch:branchUsed, fw:[...fw], paths:paths.length,
+    truncated:!!tree.truncated, topDirs, topExts, signals, pkg,
+    pkgScripts: pkg&&pkg.scripts?Object.keys(pkg.scripts).length:0,
+    pkgDeps: pkg?Object.keys(Object.assign({},pkg.dependencies,pkg.devDependencies)).length:0};
+}
+function githubVerdict(d){
+  const v=[]; const m=d.meta;
+  const topLang=Object.entries(d.langs).sort((a,b)=>b[1]-a[1])[0];
+  if(m.archived) v.push(LANG==="zh"?"已封存——唯讀狀態，唔再維護。":"Archived — read-only, no longer maintained.");
+  if(m.stargazers_count>50000) v.push(LANG==="zh"?"星數極高——社群信任度好強的旗艦項目。":"Huge star count — a flagship project with strong community trust.");
+  else if(m.stargazers_count>5000) v.push(LANG==="zh"?"星數過 5k——已經係受歡迎的成熟項目。":"Over 5k stars — a popular, mature project.");
+  if(topLang&&/typescript|javascript/i.test(topLang[0])&&d.fw.some(f=>/react|vue|angular|svelte|next|nuxt/i.test(f)))
+    v.push((LANG==="zh"?"以 ":"Built mainly in ")+topLang[0]+(LANG==="zh"?"為主，配":" with")+` ${d.fw.filter(f=>/react|vue|angular|svelte|next|nuxt|astro|remix|gatsby/i.test(f)).join(", ")||"a JS framework"}`+(LANG==="zh"?"——好可能係 Web 應用。":" — likely a web application."));
+  if(d.fw.includes("Electron")) v.push(LANG==="zh"?"用 Electron——係桌面應用。":"Uses Electron — a desktop app.");
+  if(d.fw.includes("Docker")&&d.fw.includes("GitHub Actions")) v.push(LANG==="zh"?"有 Docker＋CI——以生產級姿態發佈。":"Docker + CI present — shipped with a production-grade posture.");
+  if(d.signals.find(s=>s[0]==="Tests")[1]) v.push(LANG==="zh"?"有自動化測試——維護得幾認真。":"Has automated tests — maintained with care.");
+  if(d.paths<80) v.push(LANG==="zh"?"檔案好少——應該係專注單一功能的工具／庫。":"Small file count — probably a focused tool or library.");
+  if(Object.keys(d.langs).length>=5) v.push(LANG==="zh"?"五種以上語言——多語言混合的大型項目。":"5+ languages — a large polyglot codebase.");
+  if(!d.signals.find(s=>s[0]==="LICENSE")[1]) v.push(LANG==="zh"?"搵唔到 LICENSE——重用條款唔清晰。":"No LICENSE found — reuse terms are unclear.");
+  const inactive=(Date.now()-new Date(m.updated_at).getTime())>365*864e5;
+  if(inactive&&!m.archived) v.push(LANG==="zh"?"超過一年冇更新——可能已停滯。":"No updates for over a year — possibly stalled.");
+  if(m.topics&&m.topics.length) v.push((LANG==="zh"?"標籤：":"Tagged: ")+m.topics.slice(0,6).join(", "));
+  if(!v.length) v.push(LANG==="zh"?"常規開源項目，結構標準。":"A conventional open-source project with a standard structure.");
+  return v;
+}
+
+/* ---------------- website analysis ---------------- */
+const WEB_FPS=[ // [label, regex against full HTML]
+  ["Next.js",/__NEXT_DATA__|_next\/static/i],["React",/data-reactroot|react-dom\//i],
+  ["Vue",/data-v-app|__VUE__/i],["Nuxt",/__NUXT__|_nuxt\//i],
+  ["Angular",/ng-version|\/angular\//i],["Svelte",/svelte\//i],["Astro",/generator"\s*content="Astro/i],
+  ["Remix",/remix/i],["Gatsby",/gatsby-/i],["WordPress",/wp-content|wp-includes|wp-json/i],
+  ["Shopify",/cdn\.shopify|myshopify\./i],["Webflow",/webflow/i],["Wix",/wixstatic|wix\.com/i],
+  ["Squarespace",/squarespace/i],["Tailwind CSS",/tailwind/i],["Bootstrap",/bootstrap/i],
+  ["jQuery",/jquery/i],["Google Analytics",/googletagmanager|gtag\/js|google-analytics\.com/i],
+  ["Cloudflare",/cloudflare/i],["Vercel",/vercel/i],["Netlify",/netlify/i]
+];
+async function fetchHTML(url){
+  const enc=encodeURIComponent(url);
+  logStep(`${t("logFetching")} ${t("sHtml")} (allorigins)`,"run");
+  try{ const r=await fetch("https://api.allorigins.win/raw?url="+enc);
+    if(r.ok){ const txt=await r.text(); if(txt&&txt.length>200){ logStep(t("sHtml"),"ok"); return txt; } } }catch(e){}
+  logStep("allorigins","err");
+  logStep(`${t("logFetching")} ${t("sHtml")} (allorigins/get)`,"run");
+  try{ const r=await fetch("https://api.allorigins.win/get?url="+enc);
+    if(r.ok){ const j=await r.json(); if(j&&j.contents&&j.contents.length>200){ logStep(t("sHtml"),"ok"); return j.contents; } } }catch(e){}
+  logStep("allorigins/get","err");
+  logStep(`${t("logFetching")} ${t("sHtml")} (cors.lol)`,"run");
+  try{ const r=await fetch("https://api.cors.lol/?url="+enc);
+    if(r.ok){ const txt=await r.text(); if(txt&&txt.length>200){ logStep(t("sHtml"),"ok"); return txt; } } }catch(e){}
+  logStep("cors.lol","err");
+  throw new Error("FETCH_FAIL");
+}
+function analyzeWeb(url, html){
+  logStep(t("sParse"),"run");
+  const doc=new DOMParser().parseFromString(html,"text/html");
+  const u=new URL(url);
+  const scripts=[...doc.querySelectorAll("script[src]")].map(s=>s.getAttribute("src"));
+  const styles=[...doc.querySelectorAll('link[rel="stylesheet"]')].map(l=>l.getAttribute("href"));
+  const imgs=doc.querySelectorAll("img").length;
+  const links=[...doc.querySelectorAll("a[href]")].map(a=>a.getAttribute("href"));
+  let intL=0, extL=0;
+  for(const h of links){ try{ const lu=new URL(h,url); (lu.hostname===u.hostname?intL++:extL++); }catch(e){ intL++; } }
+  const fps=WEB_FPS.filter(([,re])=>re.test(html)).map(([l])=>l);
+  const heads={h1:[...doc.querySelectorAll("h1")].slice(0,3).map(h=>h.textContent.trim()).filter(Boolean),
+               h2:[...doc.querySelectorAll("h2")].slice(0,4).map(h=>h.textContent.trim()).filter(Boolean),
+               h3:[...doc.querySelectorAll("h3")].slice(0,4).map(h=>h.textContent.trim()).filter(Boolean)};
+  logStep(t("sParse"),"ok");
+  return {kind:"web", url, host:u.hostname,
+    title:(doc.querySelector("title")||{}).textContent?.trim()||"—",
+    desc:(doc.querySelector('meta[name="description"]')||{}).content?.trim()||"—",
+    langAttr:doc.documentElement.getAttribute("lang")||"—",
+    heads, scripts:scripts.length, styles:styles.length, imgs,
+    links:links.length, intL, extL, fps, htmlLen:html.length};
+}
+function webVerdict(d){
+  const v=[];
+  if(d.fps.includes("Next.js")) v.push(LANG==="zh"?"命中 Next.js 特徵——React SSR/SSG 網站，好可能部署喺 Vercel。":"Next.js fingerprints — a React SSR/SSG site, quite possibly on Vercel.");
+  if(d.fps.includes("WordPress")) v.push(LANG==="zh"?"WordPress 指紋——CMS 驅動的內容網站。":"WordPress fingerprints — a CMS-driven content site.");
+  if(d.fps.includes("Shopify")) v.push(LANG==="zh"?"Shopify 指紋——電商網站。":"Shopify fingerprints — an e-commerce site.");
+  if(!d.fps.length) v.push(LANG==="zh"?"冇命中已知框架——可能係手寫靜態頁或小眾技術。":"No known framework matched — possibly a hand-written static page or niche stack.");
+  if(d.scripts===0&&d.styles<=1) v.push(LANG==="zh"?"幾乎零 JS——極簡靜態頁。":"Almost no JS — a minimal static page.");
+  if(d.scripts>25) v.push(LANG==="zh"?"Script 數量多（>"+d.scripts+"）——功能複雜或追蹤碼重。":"Many scripts ("+d.scripts+") — complex functionality or heavy tracking.");
+  if(d.extL>d.intL*2&&d.links>10) v.push(LANG==="zh"?"外部連結遠多過內部——可能係導航／聚合型頁面。":"Far more external than internal links — possibly a directory/aggregator page.");
+  if(/wordpress|shopify|webflow|wix|squarespace/i.test(d.fps.join(" "))) v.push(LANG==="zh"?"用現成建站平台——內容行先，技術自研成分低。":"Built on a site builder — content-led, low custom engineering.");
+  if(d.fps.includes("Tailwind CSS")) v.push(LANG==="zh"?"用 Tailwind——utility-first 的現代前端審美。":"Uses Tailwind — modern utility-first frontend taste.");
+  if(!v.length) v.push(LANG==="zh"?"結構常規的網站。":"A structurally conventional website.");
+  return v;
+}
+
+/* ---------------- rendering ---------------- */
+let LAST=null;
+function pill(txt,cls){ return `<span class="pill ${cls||""}">${esc(txt)}</span>`; }
+function kvRow(k,v){ return `<div><div class="k">${esc(k)}</div><div class="v">${v}</div></div>`; }
+function renderGithub(d){
+  const m=d.meta, total=Object.values(d.langs).reduce((a,b)=>a+b,0)||1;
+  const langRows=Object.entries(d.langs).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([l,b])=>{
+    const pc=(b/total*100); return `<div class="row"><span class="nm">${esc(l)}</span><span class="tr"><span class="fl" style="width:${pc.toFixed(1)}%"></span></span><span class="pc">${pc.toFixed(1)}%</span></div>`; }).join("")||`<p class="sub">—</p>`;
+  const dirRows=d.topDirs.map(([dir,c])=>`<div class="dir">📁 <b>${c}</b> · ${esc(dir)}</div>`).join("")||`<p class="sub">—</p>`;
+  const extRows=d.topExts.map(([e,c])=>`<tr><td>.${esc(e)}</td><td>${c}</td></tr>`).join("");
+  const sigRows=d.signals.map(([n,ok])=>pill(n+(ok?" ✓":" ✗"), ok?"good":"bad")).join("");
+  const fwPills=d.fw.length?d.fw.map(f=>pill(f,"hot")).join(""):`<p class="sub">${esc(t("noFw"))}</p>`;
+  const verdicts=githubVerdict(d).map(v=>`<li><span class="tag-heur">${esc(t("heuristic"))}</span>${esc(v)}</li>`).join("");
+  return `
+  <div class="card"><h2>${esc(t("secOverview"))}</h2><p class="sub">${esc(m.full_name)} · ${esc(t("branch"))}: ${esc(d.branch)}</p>
+    <div class="kv">
+      ${kvRow(t("desc"), esc(m.description||"—"))}
+      ${kvRow(t("stars"), "⭐ "+m.stargazers_count.toLocaleString())}
+      ${kvRow(t("forks"), m.forks_count.toLocaleString())}
+      ${kvRow(t("issues"), m.open_issues_count.toLocaleString())}
+      ${kvRow(t("license"), esc((m.license&&(m.license.spdx_id||m.license.name))||"—"))}
+      ${kvRow(t("created"), fmtDate(m.created_at))}${kvRow(t("updated"), fmtDate(m.updated_at))}
+      ${kvRow(t("size"), fmtKB(m.size))}
+      ${kvRow(t("homepage"), m.homepage?`<a href="${esc(m.homepage)}" target="_blank" rel="noopener">${esc(m.homepage.replace(/^https?:\/\//,""))}</a>`:"—")}
+      ${kvRow(t("topics"), m.topics&&m.topics.length?esc(m.topics.slice(0,8).join(", ")):"—")}
+      ${kvRow(t("primaryLang"), esc(m.language||"—"))}
+    </div></div>
+  <div class="card"><h2>${esc(t("secTech"))}</h2><p class="sub">${esc(t("languages"))}</p>
+    <div class="langbar">${langRows}</div>
+    <p class="sub" style="margin-top:16px">${esc(t("frameworks"))}</p>${fwPills}
+    ${d.pkg?`<p class="sub" style="margin-top:10px">package.json · ${d.pkgDeps} ${esc(t("deps"))} · ${d.pkgScripts} ${esc(t("scripts"))}</p>`:""}
+  </div>
+  <div class="card"><h2>${esc(t("secStruct"))}</h2><p class="sub">${d.paths.toLocaleString()} ${esc(t("totalFiles"))}${d.truncated?` · ${esc(t("treeTrunc"))}`:""}</p>
+    <p class="sub">${esc(t("topDirs"))}</p><div class="dirgrid">${dirRows}</div>
+    <p class="sub" style="margin-top:16px">${esc(t("exts"))}</p><table class="exttable">${extRows}</table>
+  </div>
+  <div class="card"><h2>${esc(t("secSignals"))}</h2><p class="sub">✓ = ${LANG==="zh"?"偵測到":"detected"}</p>${sigRows}</div>
+  <div class="card"><h2>${esc(t("secVerdict"))}</h2><p class="sub">${esc(t("heuristic"))} · ${LANG==="zh"?"以下係啟發式推斷，唔係事實保證":"below are heuristic inferences, not guarantees"}</p>
+    <ul class="verdict">${verdicts}</ul></div>`;
+}
+function renderWeb(d){
+  const headRows=[...d.heads.h1.map(h=>`<b>H1</b> ${esc(h)}`),...d.heads.h2.map(h=>`<b>H2</b> ${esc(h)}`),...d.heads.h3.map(h=>`<b>H3</b> ${esc(h)}`)].map(x=>`<div style="font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line)">${x}</div>`).join("")||`<p class="sub">—</p>`;
+  const fwPills=d.fps.length?d.fps.map(f=>pill(f,"hot")).join(""):`<p class="sub">${esc(t("noFw"))}</p>`;
+  const verdicts=webVerdict(d).map(v=>`<li><span class="tag-heur">${esc(t("heuristic"))}</span>${esc(v)}</li>`).join("");
+  return `
+  <div class="card"><h2>${esc(t("secOverview"))}</h2><p class="sub">${esc(d.host)}</p>
+    <div class="kv">
+      ${kvRow(t("title"), esc(d.title))}${kvRow(t("metaDesc"), esc(d.desc))}
+      ${kvRow(t("langAttr"), esc(d.langAttr))}${kvRow(t("links"), `${d.links} <small>(${d.intL} ${esc(t("intExt")).split(" / ")[0]} / ${d.extL} ${esc(t("intExt")).split(" / ")[1]||"ext"})</small>`)}
+      ${kvRow(t("scriptsN"), d.scripts)}${kvRow(t("stylesN"), d.styles)}${kvRow(t("imgs"), d.imgs)}
+    </div></div>
+  <div class="card"><h2>${esc(t("secTech"))}</h2><p class="sub">${LANG==="zh"?"框架指紋":"Framework fingerprints"}</p>${fwPills}</div>
+  <div class="card"><h2>${esc(t("outline"))}</h2><div style="margin-top:6px">${headRows}</div></div>
+  <div class="card"><h2>${esc(t("secVerdict"))}</h2><p class="sub">${esc(t("heuristic"))} · ${LANG==="zh"?"以下係啟發式推斷，唔係事實保證":"below are heuristic inferences, not guarantees"}</p>
+    <ul class="verdict">${verdicts}</ul></div>`;
+}
+function renderDossier(){ if(LAST) $("dossier").innerHTML = LAST.kind==="github"?renderGithub(LAST):renderWeb(LAST); }
+
+/* ---------------- AI (BYOK) ---------------- */
+function loadAI(){ try{ const s=JSON.parse(localStorage.getItem("reamo-ai")||"{}");
+  if(s.endpoint) $("ai-endpoint").value=s.endpoint; if(s.model) $("ai-model").value=s.model; if(s.key) $("ai-key").value=s.key; }catch(e){} }
+function saveAI(){ localStorage.setItem("reamo-ai", JSON.stringify({endpoint:$("ai-endpoint").value.trim(), model:$("ai-model").value.trim(), key:$("ai-key").value})); }
+async function interpretWithAI(){
+  if(!LAST) return;
+  const endpoint=$("ai-endpoint").value.trim(), model=$("ai-model").value.trim(), key=$("ai-key").value;
+  if(!key){ $("aiout").classList.add("show"); $("aiout").textContent=t("errAiKey"); return; }
+  saveAI();
+  const btn=$("btn-ai"); btn.disabled=true; const old=btn.textContent; btn.textContent=t("aiWorking");
+  $("aiout").classList.add("show"); $("aiout").textContent="…";
+  try{
+    const r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+      body:JSON.stringify({model, messages:[{role:"system",content:t("sysPrompt")},{role:"user",content:JSON.stringify(LAST).slice(0,12000)}], temperature:0.4})});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    $("aiout").textContent=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||JSON.stringify(j).slice(0,2000);
+  }catch(e){ $("aiout").textContent=t("errAi")+e.message; }
+  btn.disabled=false; btn.textContent=old;
+}
+
+/* ---------------- main flow ---------------- */
+async function analyze(){
+  const raw=$("target").value; clearLog(); $("aiout").classList.remove("show");
+  const c=classify(raw);
+  if(c.type==="invalid"){ $("dossier").innerHTML=`<div class="empty">${esc(t("errInvalid"))}</div>`; return; }
+  const btn=$("btn-go"); btn.disabled=true; const old=btn.textContent; btn.textContent=t("analyzing");
+  try{
+    if(c.type==="github"){ LAST=await analyzeGitHub(c.owner,c.repo); }
+    else { const html=await fetchHTML(c.url); LAST=analyzeWeb(c.url,html); }
+    renderDossier();
+  }catch(e){
+    const msg=e.message==="GH404"?t("errGh404"):e.message==="RATE"?t("errRate"):e.message==="FETCH_FAIL"?t("errFetch"):String(e.message||e);
+    logStep(msg,"err");
+    $("dossier").innerHTML=`<div class="empty">${esc(msg)}</div>`;
+  }
+  btn.disabled=false; btn.textContent=old;
+}
+
+/* ---------------- i18n apply ---------------- */
+function applyLang(l){
+  LANG=l; localStorage.setItem("reamo-lang",l);
+  document.documentElement.lang = l==="zh"?"zh-Hant":"en";
+  $("btn-en").classList.toggle("on",l==="en"); $("btn-zh").classList.toggle("on",l==="zh");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{ el.innerHTML=t(el.dataset.i18nHtml); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{ el.placeholder=t(el.dataset.i18nPh); });
+  document.title="Rea Mo — "+(l==="zh"?"貼上網址，得到建造清單":"Paste a URL, get the build sheet");
+  if(LAST) renderDossier();
+}
+
+/* ---------------- autotest hook (CI-style verification) ---------------- */
+function summarize(d){
+  if(d.kind==="github") return {kind:"github", repo:d.meta.full_name, stars:d.meta.stargazers_count,
+    topLangs:Object.entries(d.langs).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]),
+    frameworks:d.fw, files:d.paths, verdicts:githubVerdict(d).length};
+  return {kind:"web", host:d.host, title:d.title, frameworks:d.fps,
+    counts:{scripts:d.scripts,styles:d.styles,links:d.links,imgs:d.imgs}, verdicts:webVerdict(d).length};
+}
+async function runAutotest(type,target){
+  try{
+    const data = type==="github"
+      ? await analyzeGitHub(...target.split("/"))
+      : analyzeWeb(target, await fetchHTML(target));
+    LAST=data; renderDossier();
+    $("autotest-result").textContent=JSON.stringify({ok:true,summary:summarize(data)});
+    document.title="AUTOTEST_DONE";
+  }catch(e){
+    $("autotest-result").textContent=JSON.stringify({ok:false,error:String(e&&e.message||e)});
+    document.title="AUTOTEST_FAIL";
+  }
+}
+
+/* ---------------- init ---------------- */
+$("btn-go").addEventListener("click",analyze);
+$("target").addEventListener("keydown",e=>{ if(e.key==="Enter") analyze(); });
+$("btn-en").addEventListener("click",()=>applyLang("en"));
+$("btn-zh").addEventListener("click",()=>applyLang("zh"));
+$("btn-ai").addEventListener("click",interpretWithAI);
+document.querySelectorAll("[data-sample]").forEach(b=>b.addEventListener("click",()=>{
+  const [k,v]=b.dataset.sample.split(/:(.+)/); $("target").value = k==="gh"? v : v; analyze();
+}));
+loadAI(); applyLang(LANG);
+(function(){ const m=location.hash.match(/^#autotest=(github|web)\|(.+)$/);
+  if(m) runAutotest(m[1], decodeURIComponent(m[2])); })();
+</script>
+</body>
+</html>
