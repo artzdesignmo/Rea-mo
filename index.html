@@ -90,6 +90,15 @@ h1.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:cla
 .pill.hot{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
 .pill.good{border-color:var(--ok);color:var(--ok)}
 .pill.bad{border-color:var(--bad);color:var(--bad)}
+/* releases card */
+.dlrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px}
+a.dl{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px;font:600 13px "Geist","Noto Sans TC",sans-serif;color:var(--ink);text-decoration:none;transition:.15s}
+a.dl:hover{border-color:var(--accent);color:var(--accent)}
+a.dl small{color:var(--muted);font-weight:500}
+.relrow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.relrow a{color:var(--ink);text-decoration:none;font-weight:600}
+.relrow a:hover{color:var(--accent)}
+.rel-date{margin-left:auto;color:var(--muted);font-size:12.5px;flex:none}
 .langbar{margin:10px 0 4px}
 .langbar .row{display:flex;align-items:center;gap:12px;margin-bottom:9px;font-size:13px}
 .langbar .nm{width:110px;flex:none;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -153,7 +162,7 @@ footer a{color:var(--ink);font-weight:600}
     <div class="logcard" id="logcard"><div id="log"></div></div>
   </div>
 
-  <div id="dossier"><div class="empty" data-i18n="emptyState">Your dossier will appear here — overview, tech stack, structure, signals and verdict.</div></div>
+  <div id="dossier"><div class="empty" data-i18n="emptyState">Your dossier will appear here — overview, releases, tech stack, structure, signals and verdict.</div></div>
 
   <div class="card aibox" style="margin-top:18px">
     <h2 data-i18n-html="aiTitle">Interpret with AI <span style="font-family:Geist;font-size:12px;color:var(--muted)">(optional · BYOK)</span></h2>
@@ -187,9 +196,9 @@ footer a{color:var(--ink);font-weight:600}
 const STR = {
 en:{
   brandSub:"OpenX · Open Source Lab", kicker:"STRUCTURAL X-RAY FOR CODE & SITES",
-  tagline:'Paste a <b>GitHub repo</b> or a <b>website URL</b> — get a structured build sheet: tech stack, file anatomy, framework fingerprints and honest heuristic verdicts. No account, no backend.',
+  tagline:'Paste a <b>GitHub repo</b> or a <b>website URL</b> — get a structured build sheet: tech stack, releases, file anatomy, framework fingerprints and honest heuristic verdicts. No account, no backend.',
   inputPh:"github.com/owner/repo · owner/repo · example.com", analyze:"Analyze", analyzing:"Analyzing…",
-  tryLabel:"Try:", emptyState:"Your dossier will appear here — overview, tech stack, structure, signals and verdict.",
+  tryLabel:"Try:", emptyState:"Your dossier will appear here — overview, releases, tech stack, structure, signals and verdict.",
   aiTitle:'Interpret with AI <span style="font-family:Geist;font-size:12px;color:var(--muted)">(optional · BYOK)</span>',
   aiSub:"Bring your own key. The tool is fully useful without it — this only adds a plain-language reading of the findings above. Your key stays in this browser's localStorage and is sent only to the endpoint you choose.",
   aiEndpoint:"Endpoint (OpenAI-compatible)", aiModel:"Model", aiKey:"API key", aiKeyPh:"sk-…",
@@ -198,6 +207,7 @@ en:{
   footNote:"heuristic, client-side, honest",
   logFetching:"Fetching", logDone:"done", logFail:"failed",
   sRepoMeta:"repo metadata", sLangs:"language stats", sTree:"file tree", sReadme:"README", sPkg:"package.json",
+  sReleases:"releases",
   sHtml:"page HTML", sParse:"parsing HTML",
   errInvalid:"That doesn't look like a repo or a URL. Try owner/repo or example.com.",
   errGh404:"GitHub returned 404 — is the repo public and the name spelled right?",
@@ -206,6 +216,10 @@ en:{
   errAiKey:"Paste an API key first (stored only in this browser).",
   errAi:"AI call failed: ",
   secOverview:"Overview", secTech:"Tech stack", secStruct:"Structure", secSignals:"Signals", secVerdict:"Verdict",
+  secReleases:"Releases", relLatest:"Latest", relAssets:"Downloads", relSource:"Source code",
+  relNoAssets:"No attached binaries — source archives below.", relPast:"Previous versions",
+  relAll:"All releases on GitHub ↗", relNone:"No releases published yet.",
+  relPrerelease:"pre-release", relDraft:"draft",
   heuristic:"HEURISTIC",
   languages:"Languages", frameworks:"Detected frameworks & tooling", noFw:"No known framework signatures matched.",
   topDirs:"Top-level directories", exts:"Files by extension", totalFiles:"files in tree", treeTrunc:"(tree truncated by GitHub — counts are a lower bound)",
@@ -218,9 +232,9 @@ en:{
 },
 zh:{
   brandSub:"OpenX · 開源實驗室", kicker:"程式碼與網站的結構 X 光",
-  tagline:'貼上 <b>GitHub repo</b> 或 <b>網站網址</b>，即刻得到結構化建造清單：技術棧、檔案解剖、框架指紋同誠實標示的啟發式結論。唔使帳戶，唔使後端。',
+  tagline:'貼上 <b>GitHub repo</b> 或 <b>網站網址</b>，即刻得到結構化建造清單：技術棧、發佈版本、檔案解剖、框架指紋同誠實標示的啟發式結論。唔使帳戶，唔使後端。',
   inputPh:"github.com/owner/repo · owner/repo · example.com", analyze:"分析", analyzing:"分析緊…",
-  tryLabel:"試下：", emptyState:"分析報告會喺呢度出現——總覽、技術棧、結構、訊號同結論。",
+  tryLabel:"試下：", emptyState:"分析報告會喺呢度出現——總覽、發佈版本、技術棧、結構、訊號同結論。",
   aiTitle:'用 AI 解讀 <span style="font-family:Geist;font-size:12px;color:var(--muted)">（可選 · 自備 key）</span>',
   aiSub:"自備 API key。冇 key 照樣用到全部功能——呢個只係將上面嘅發現翻譯做人話。key 只會留喺你瀏覽器嘅 localStorage，只會送去你指定嘅 endpoint。",
   aiEndpoint:"Endpoint（OpenAI-compatible）", aiModel:"模型", aiKey:"API key", aiKeyPh:"sk-…",
@@ -229,6 +243,7 @@ zh:{
   footNote:"啟發式 · 純前端 · 誠實",
   logFetching:"抓取緊", logDone:"完成", logFail:"失敗",
   sRepoMeta:"repo 元資料", sLangs:"語言統計", sTree:"檔案樹", sReadme:"README", sPkg:"package.json",
+  sReleases:"發佈版本",
   sHtml:"頁面 HTML", sParse:"解析 HTML 緊",
   errInvalid:"睇落唔似 repo 又唔似網址，試下 owner/repo 或者 example.com。",
   errGh404:"GitHub 回 404——個 repo 係咪公開？名有冇打錯？",
@@ -237,6 +252,10 @@ zh:{
   errAiKey:"先貼 API key（只存喺呢個瀏覽器）。",
   errAi:"AI call 失敗：",
   secOverview:"總覽", secTech:"技術棧", secStruct:"結構", secSignals:"訊號", secVerdict:"結論",
+  secReleases:"發佈版本", relLatest:"最新", relAssets:"下載", relSource:"源碼",
+  relNoAssets:"冇附帶執行檔——下面係源碼壓縮包。", relPast:"過往版本",
+  relAll:"去 GitHub 睇全部版本 ↗", relNone:"未發佈過任何版本。",
+  relPrerelease:"預覽版", relDraft:"草稿",
   heuristic:"啟發式",
   languages:"語言分佈", frameworks:"偵測到嘅框架同工具", noFw:"冇命中已知框架特徵。",
   topDirs:"頂層目錄", exts:"副檔名統計", totalFiles:"個檔案", treeTrunc:"（GitHub 截斷咗檔案樹——數字只係下限）",
@@ -262,6 +281,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmtDate = iso => { try{ return new Date(iso).toISOString().slice(0,10); }catch(e){ return iso; } };
 const fmtKB = kb => kb>1024 ? (kb/1024).toFixed(1)+" MB" : Math.round(kb)+" KB";
+const fmtBytes = b => b>=1048576 ? (b/1048576).toFixed(1)+" MB" : b>=1024 ? (b/1024).toFixed(1)+" KB" : b+" B";
 function logStep(msg, state){ // state: run|ok|err — honest log of real steps only
   const log=$("log"); $("logcard").classList.add("show");
   const line=document.createElement("div");
@@ -340,6 +360,11 @@ async function analyzeGitHub(owner,repo){
     try{ const c=await gh(`/repos/${owner}/${repo}/contents/package.json?ref=${branchUsed}`); pkg=JSON.parse(b64decode(c.content)); logStep(t("sPkg"),"ok"); }
     catch(e){ logStep(t("sPkg"),"err"); }
   } else logStep(t("sPkg"),"err");
+  // releases
+  logStep(`${t("logFetching")} ${t("sReleases")}`,"run");
+  let releases=[];
+  try{ releases=await gh(`/repos/${owner}/${repo}/releases?per_page=12`); logStep(t("sReleases"),"ok"); }
+  catch(e){ logStep(t("sReleases"),"err"); }
   // frameworks
   const fw=new Set();
   if(pkg){ const all=Object.assign({},pkg.dependencies,pkg.devDependencies);
@@ -365,7 +390,7 @@ async function analyzeGitHub(owner,repo){
     ["Homepage", !!meta.homepage, true]
   ];
   return {kind:"github", meta, langs, branch:branchUsed, fw:[...fw], paths:paths.length,
-    truncated:!!tree.truncated, topDirs, topExts, signals, pkg,
+    truncated:!!tree.truncated, topDirs, topExts, signals, pkg, releases,
     pkgScripts: pkg&&pkg.scripts?Object.keys(pkg.scripts).length:0,
     pkgDeps: pkg?Object.keys(Object.assign({},pkg.dependencies,pkg.devDependencies)).length:0};
 }
@@ -458,6 +483,31 @@ function webVerdict(d){
 let LAST=null;
 function pill(txt,cls){ return `<span class="pill ${cls||""}">${esc(txt)}</span>`; }
 function kvRow(k,v){ return `<div><div class="k">${esc(k)}</div><div class="v">${v}</div></div>`; }
+function renderReleases(d){
+  const m=d.meta, rels=d.releases||[];
+  const allUrl=`https://github.com/${m.owner.login}/${m.name}/releases`;
+  if(!rels.length)
+    return `<div class="card"><h2>${esc(t("secReleases"))}</h2><p class="sub">${esc(t("relNone"))}</p></div>`;
+  const [latest,...past]=rels;
+  const tag=r=>esc(r.tag_name||r.name||"?");
+  const badge=r=>r.draft?` <span class="pill bad">${esc(t("relDraft"))}</span>`:r.prerelease?` <span class="pill">${esc(t("relPrerelease"))}</span>`:"";
+  const date=r=>fmtDate(r.published_at||r.created_at||"");
+  const dl=r=>{
+    const assets=(r.assets||[]).map(a=>`<a class="dl" href="${esc(a.browser_download_url)}" download>${esc(a.name)} <small>${fmtBytes(a.size||0)}</small></a>`).join("");
+    const src=`<a class="dl" href="${esc(r.zipball_url)}" download>zip</a><a class="dl" href="${esc(r.tarball_url)}" download>tar.gz</a>`;
+    return (assets?`<p class="sub">${esc(t("relAssets"))}</p><div class="dlrow">${assets}</div>`:`<p class="sub">${esc(t("relNoAssets"))}</p>`)
+      + `<p class="sub" style="margin-top:8px">${esc(t("relSource"))}</p><div class="dlrow">${src}</div>`;
+  };
+  const pastRows=past.slice(0,8).map(r=>
+    `<div class="relrow"><a href="${esc(r.html_url)}" target="_blank" rel="noopener"><b>${tag(r)}</b></a>${badge(r)}<span class="rel-date">${date(r)}</span></div>`).join("");
+  return `<div class="card"><h2>${esc(t("secReleases"))}</h2>
+    <p class="sub">${esc(t("relLatest"))} · <b style="font-size:15px">${tag(latest)}</b>${badge(latest)} · ${date(latest)}</p>
+    ${latest.name&&latest.name!==latest.tag_name?`<p style="font-size:14px;margin:2px 0 10px">${esc(latest.name)}</p>`:""}
+    ${dl(latest)}
+    ${past.length?`<p class="sub" style="margin-top:16px">${esc(t("relPast"))}</p><div>${pastRows}</div>`:""}
+    <p style="margin-top:14px"><a href="${esc(allUrl)}" target="_blank" rel="noopener">${esc(t("relAll"))}</a></p>
+  </div>`;
+}
 function renderGithub(d){
   const m=d.meta, total=Object.values(d.langs).reduce((a,b)=>a+b,0)||1;
   const langRows=Object.entries(d.langs).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([l,b])=>{
@@ -481,6 +531,7 @@ function renderGithub(d){
       ${kvRow(t("topics"), m.topics&&m.topics.length?esc(m.topics.slice(0,8).join(", ")):"—")}
       ${kvRow(t("primaryLang"), esc(m.language||"—"))}
     </div></div>
+  ${renderReleases(d)}
   <div class="card"><h2>${esc(t("secTech"))}</h2><p class="sub">${esc(t("languages"))}</p>
     <div class="langbar">${langRows}</div>
     <p class="sub" style="margin-top:16px">${esc(t("frameworks"))}</p>${fwPills}
@@ -567,7 +618,7 @@ function applyLang(l){
 function summarize(d){
   if(d.kind==="github") return {kind:"github", repo:d.meta.full_name, stars:d.meta.stargazers_count,
     topLangs:Object.entries(d.langs).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]),
-    frameworks:d.fw, files:d.paths, verdicts:githubVerdict(d).length};
+    frameworks:d.fw, files:d.paths, releases:(d.releases||[]).length, verdicts:githubVerdict(d).length};
   return {kind:"web", host:d.host, title:d.title, frameworks:d.fps,
     counts:{scripts:d.scripts,styles:d.styles,links:d.links,imgs:d.imgs}, verdicts:webVerdict(d).length};
 }
