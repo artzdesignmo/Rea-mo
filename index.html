@@ -99,6 +99,14 @@ a.dl small{color:var(--muted);font-weight:500}
 .relrow a{color:var(--ink);text-decoration:none;font-weight:600}
 .relrow a:hover{color:var(--accent)}
 .rel-date{margin-left:auto;color:var(--muted);font-size:12.5px;flex:none}
+/* preview card (same size as overview, side by side) */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
+@media(max-width:720px){.duo{grid-template-columns:1fr}}
+.card.preview-card{padding:0;overflow:hidden;position:relative;min-height:340px}
+.preview-card a{display:block;position:relative;width:100%;height:100%;min-height:340px;color:inherit;text-decoration:none}
+.preview-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center}
+.preview-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--bg);color:var(--muted)}
+.preview-tag{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;backdrop-filter:blur(8px);color:var(--ink)}
 .langbar{margin:10px 0 4px}
 .langbar .row{display:flex;align-items:center;gap:12px;margin-bottom:9px;font-size:13px}
 .langbar .nm{width:110px;flex:none;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -220,6 +228,7 @@ en:{
   relNoAssets:"No attached binaries — source archives below.", relPast:"Previous versions",
   relAll:"All releases on GitHub ↗", relNone:"No releases published yet.",
   relPrerelease:"pre-release", relDraft:"draft",
+  secPreview:"Preview",
   heuristic:"HEURISTIC",
   languages:"Languages", frameworks:"Detected frameworks & tooling", noFw:"No known framework signatures matched.",
   topDirs:"Top-level directories", exts:"Files by extension", totalFiles:"files in tree", treeTrunc:"(tree truncated by GitHub — counts are a lower bound)",
@@ -256,6 +265,7 @@ zh:{
   relNoAssets:"冇附帶執行檔——下面係源碼壓縮包。", relPast:"過往版本",
   relAll:"去 GitHub 睇全部版本 ↗", relNone:"未發佈過任何版本。",
   relPrerelease:"預覽版", relDraft:"草稿",
+  secPreview:"預覽",
   heuristic:"啟發式",
   languages:"語言分佈", frameworks:"偵測到嘅框架同工具", noFw:"冇命中已知框架特徵。",
   topDirs:"頂層目錄", exts:"副檔名統計", totalFiles:"個檔案", treeTrunc:"（GitHub 截斷咗檔案樹——數字只係下限）",
@@ -517,7 +527,16 @@ function renderGithub(d){
   const sigRows=d.signals.map(([n,ok])=>pill(n+(ok?" ✓":" ✗"), ok?"good":"bad")).join("");
   const fwPills=d.fw.length?d.fw.map(f=>pill(f,"hot")).join(""):`<p class="sub">${esc(t("noFw"))}</p>`;
   const verdicts=githubVerdict(d).map(v=>`<li><span class="tag-heur">${esc(t("heuristic"))}</span>${esc(v)}</li>`).join("");
+  const previewCard=m.homepage?`
+  <div class="card preview-card">
+    <a href="${esc(m.homepage)}" target="_blank" rel="noopener" title="${esc(m.homepage)}">
+      <div class="preview-fallback"><span style="font-family:'Dela Gothic One';font-size:15px;letter-spacing:.04em">PREVIEW</span><small>${esc(m.homepage.replace(/^https?:\/\//,""))}</small></div>
+      <img src="https://s0.wp.com/mshots/v1/${encodeURIComponent(m.homepage)}?w=1000" data-fb="https://image.thum.io/get/width/800/crop/800/${esc(m.homepage)}" alt="${esc(t("secPreview"))}" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb='';}else{this.remove();}">
+      <div class="preview-tag"><b>${esc(t("secPreview"))}</b><span>${esc(m.homepage.replace(/^https?:\/\//,"").slice(0,30))} ↗</span></div>
+    </a>
+  </div>`:"";
   return `
+  <div class="duo">
   <div class="card"><h2>${esc(t("secOverview"))}</h2><p class="sub">${esc(m.full_name)} · ${esc(t("branch"))}: ${esc(d.branch)}</p>
     <div class="kv">
       ${kvRow(t("desc"), esc(m.description||"—"))}
@@ -531,6 +550,8 @@ function renderGithub(d){
       ${kvRow(t("topics"), m.topics&&m.topics.length?esc(m.topics.slice(0,8).join(", ")):"—")}
       ${kvRow(t("primaryLang"), esc(m.language||"—"))}
     </div></div>
+  ${previewCard}
+  </div>
   ${renderReleases(d)}
   <div class="card"><h2>${esc(t("secTech"))}</h2><p class="sub">${esc(t("languages"))}</p>
     <div class="langbar">${langRows}</div>
