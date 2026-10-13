@@ -12,8 +12,25 @@
   --bg:#e9e9e7; --ink:#1d1a15; --ink-soft:#4a453c; --muted:#8a8478;
   --card:#fbfaf6; --line:#d9d5c9; --accent:#c2410c; --accent-soft:#f5e6da;
   --ok:#2f7d4f; --warn:#b97f0f;
+  --on-ink:#f4f2ec; --bad:#b3402e;
   --shadow:0 12px 32px rgba(96,88,70,.13), 0 2px 6px rgba(96,88,70,.08);
   --r:16px;
+}
+/* theme: white */
+[data-theme="white"]{
+  --bg:#ffffff; --ink:#1d1a15; --ink-soft:#4a453c; --muted:#8a8478;
+  --card:#ffffff; --line:#e2e2e2; --accent:#c2410c; --accent-soft:#f7ece2;
+  --ok:#2f7d4f; --warn:#b97f0f;
+  --on-ink:#ffffff; --bad:#b3402e;
+  --shadow:0 12px 32px rgba(96,88,70,.10), 0 2px 6px rgba(96,88,70,.06);
+}
+/* theme: black */
+[data-theme="black"]{
+  --bg:#14110e; --ink:#f2efe6; --ink-soft:#cfc8b6; --muted:#8f8878;
+  --card:#201b15; --line:#38322a; --accent:#e8874a; --accent-soft:#2c2317;
+  --ok:#7fc496; --warn:#e0a93e;
+  --on-ink:#14110e; --bad:#e06c5a;
+  --shadow:0 12px 32px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -32,7 +49,14 @@ body::before{
 .brand small{font-family:"Geist","Noto Sans TC",sans-serif;font-weight:500;color:var(--muted);font-size:11px;margin-left:10px;letter-spacing:.02em}
 .lang-toggle{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
 .lang-toggle button{border:0;background:transparent;padding:7px 16px;font:600 12px "Geist","Noto Sans TC",sans-serif;color:var(--muted);cursor:pointer;letter-spacing:.05em}
-.lang-toggle button.on{background:var(--ink);color:#f4f2ec}
+.lang-toggle button.on{background:var(--ink);color:var(--on-ink)}
+/* 3-way color theme switch: white / silver-gray / black */
+.theme3{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 13px;cursor:pointer}
+.tdot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.28);padding:0;cursor:pointer}
+.tdot[data-t="white"]{background:#ffffff}
+.tdot[data-t="silver"]{background:#e9e9e7}
+.tdot[data-t="black"]{background:#14110e}
+.tdot.on{outline:2px solid var(--accent);outline-offset:2px}
 .hero{padding:44px 0 8px;text-align:left}
 .kicker{display:inline-block;font:600 11px "Geist","Noto Sans TC",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:6px 14px;margin-bottom:22px;background:var(--accent-soft)}
 h1.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:clamp(3rem,9vw,6.2rem);line-height:.98;letter-spacing:.01em;margin-bottom:18px}
@@ -45,8 +69,8 @@ h1.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:cla
 }
 .inputrow input:focus{border-color:var(--ink)}
 .btn{border:0;border-radius:12px;padding:15px 26px;font:700 15px "Geist","Noto Sans TC",sans-serif;cursor:pointer;letter-spacing:.02em}
-.btn-go{background:var(--ink);color:#f4f2ec}
-.btn-go:hover{background:#000}
+.btn-go{background:var(--ink);color:var(--on-ink)}
+.btn-go:hover{filter:brightness(.9)}
 .btn-go:disabled{opacity:.5;cursor:wait}
 .samples{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:26px;font-size:13px;color:var(--muted)}
 .chipbtn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font:500 12.5px "Geist","Noto Sans TC",sans-serif;color:var(--ink-soft);cursor:pointer}
@@ -62,10 +86,10 @@ h1.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:cla
 .kv .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .kv .v{font-size:15px;font-weight:600;word-break:break-word}
 .kv .v small{font-weight:400;color:var(--muted)}
-.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 13px;font-size:12.5px;font-weight:600;margin:0 6px 8px 0;background:#fff}
-.pill.hot{background:var(--ink);color:#f4f2ec;border-color:var(--ink)}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 13px;font-size:12.5px;font-weight:600;margin:0 6px 8px 0;background:var(--card)}
+.pill.hot{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
 .pill.good{border-color:var(--ok);color:var(--ok)}
-.pill.bad{border-color:#b3402e;color:#b3402e}
+.pill.bad{border-color:var(--bad);color:var(--bad)}
 .langbar{margin:10px 0 4px}
 .langbar .row{display:flex;align-items:center;gap:12px;margin-bottom:9px;font-size:13px}
 .langbar .nm{width:110px;flex:none;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -73,18 +97,18 @@ h1.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:cla
 .langbar .fl{height:100%;background:linear-gradient(90deg,#c2410c,#e08a3c);border-radius:99px}
 .langbar .pc{width:52px;flex:none;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
 .dirgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
-.dir{background:#f2f0e9;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px}
+.dir{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px}
 .dir b{font-variant-numeric:tabular-nums}
 .exttable{width:100%;border-collapse:collapse;font-size:13.5px}
 .exttable td{padding:7px 4px;border-bottom:1px dashed var(--line)}
 .exttable td:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
 .verdict{list-style:none;display:grid;gap:10px}
-.verdict li{background:#f4f2ea;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:11px 15px;font-size:14px}
-.tag-heur{display:inline-block;font:700 10px "Geist",sans-serif;letter-spacing:.14em;background:var(--ink);color:#f4f2ec;border-radius:5px;padding:2px 8px;margin-right:9px;vertical-align:1px}
+.verdict li{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:11px 15px;font-size:14px}
+.tag-heur{display:inline-block;font:700 10px "Geist",sans-serif;letter-spacing:.14em;background:var(--ink);color:var(--on-ink);border-radius:5px;padding:2px 8px;margin-right:9px;vertical-align:1px}
 .aibox{margin-top:8px}
 .aigrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .aigrid label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.aigrid input{width:100%;font:500 14px "Geist",sans-serif;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:none}
+.aigrid input{width:100%;font:500 14px "Geist",sans-serif;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);outline:none}
 .aigrid input:focus{border-color:var(--ink)}
 .ainote{font-size:12.5px;color:var(--muted);margin:10px 0 16px}
 .aiout{background:#201c17;color:#d8d2c2;border-radius:12px;padding:18px 20px;font-size:14px;line-height:1.7;white-space:pre-wrap;display:none;margin-top:14px}
@@ -103,8 +127,11 @@ footer a{color:var(--ink);font-weight:600}
 <div class="wrap">
   <div class="topbar">
     <div class="brand">REA&nbsp;MO<small data-i18n="brandSub">OpenX · Open Source Lab</small></div>
-    <div class="lang-toggle" role="group" aria-label="language">
-      <button id="btn-en" class="on">EN</button><button id="btn-zh">中</button>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="theme3" id="themeBtn" title="color theme" aria-label="color theme"><span class="tdot" data-t="white"></span><span class="tdot" data-t="silver"></span><span class="tdot" data-t="black"></span></button>
+      <div class="lang-toggle" role="group" aria-label="language">
+        <button id="btn-en" class="on">EN</button><button id="btn-zh">中</button>
+      </div>
     </div>
   </div>
 
@@ -221,6 +248,13 @@ zh:{
   aiVerdictTitle:"AI 解讀", sysPrompt:"你係資深軟件分析師。讀呢份 JSON 建造清單，用簡潔白話畀結論：呢舊嘢係咩、點樣砌出嚟、同 3 點值得留意嘅觀察。唔用 markdown 表格，短段落加點列就得。唔肯定就老實講。"
 }};
 let LANG = localStorage.getItem("reamo-lang") || "en";
+/* 3-way color theme: white / silver (default) / black */
+const THEMES=["white","silver","black"];
+let THEME=localStorage.getItem("reamo-theme")||"silver";
+if(!THEMES.includes(THEME))THEME="silver";
+function applyTheme(){if(THEME==="silver")document.documentElement.removeAttribute("data-theme");else document.documentElement.dataset.theme=THEME;document.querySelectorAll("#themeBtn .tdot").forEach(d=>d.classList.toggle("on",d.dataset.t===THEME));}
+document.querySelectorAll("#themeBtn .tdot").forEach(d=>d.addEventListener("click",()=>{THEME=d.dataset.t;localStorage.setItem("reamo-theme",THEME);applyTheme();}));
+applyTheme();
 const t = k => (STR[LANG] && STR[LANG][k]) || STR.en[k] || k;
 
 /* ---------------- helpers ---------------- */
