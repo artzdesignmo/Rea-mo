@@ -99,11 +99,9 @@ a.dl small{color:var(--muted);font-weight:500}
 .relrow a{color:var(--ink);text-decoration:none;font-weight:600}
 .relrow a:hover{color:var(--accent)}
 .rel-date{margin-left:auto;color:var(--muted);font-size:12.5px;flex:none}
-/* preview card (same size as overview, side by side) */
-.duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
-@media(max-width:720px){.duo{grid-template-columns:1fr}}
-.card.preview-card{padding:0;overflow:hidden;position:relative;min-height:340px}
-.preview-card a{display:block;position:relative;width:100%;height:100%;min-height:340px;color:inherit;text-decoration:none}
+/* preview card: standalone full-width below overview */
+.card.preview-card{padding:0;overflow:hidden;position:relative;height:400px}
+.preview-card a{display:block;position:relative;width:100%;height:100%;color:inherit;text-decoration:none}
 .preview-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center}
 .preview-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--bg);color:var(--muted)}
 .preview-tag{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;backdrop-filter:blur(8px);color:var(--ink)}
@@ -162,9 +160,9 @@ footer a{color:var(--ink);font-weight:600}
     </div>
     <div class="samples">
       <span data-i18n="tryLabel">Try:</span>
+      <button class="chipbtn" data-sample="gh:storytold/artcraft">storytold/artcraft</button>
       <button class="chipbtn" data-sample="gh:morluto/rea">morluto/rea</button>
-      <button class="chipbtn" data-sample="gh:artzdesignmo/halftone-mo">artzdesignmo/halftone-mo</button>
-      <button class="chipbtn" data-sample="web:https://openx-mo.vercel.app">openx-mo.vercel.app</button>
+      <button class="chipbtn" data-sample="gh:whynotartmoney/diffcast-co">whynotartmoney/diffcast-co</button>
       <button class="chipbtn" data-sample="web:https://example.com">example.com</button>
     </div>
     <div class="logcard" id="logcard"><div id="log"></div></div>
@@ -536,7 +534,6 @@ function renderGithub(d){
     </a>
   </div>`:"";
   return `
-  <div class="duo">
   <div class="card"><h2>${esc(t("secOverview"))}</h2><p class="sub">${esc(m.full_name)} · ${esc(t("branch"))}: ${esc(d.branch)}</p>
     <div class="kv">
       ${kvRow(t("desc"), esc(m.description||"—"))}
@@ -551,7 +548,6 @@ function renderGithub(d){
       ${kvRow(t("primaryLang"), esc(m.language||"—"))}
     </div></div>
   ${previewCard}
-  </div>
   ${renderReleases(d)}
   <div class="card"><h2>${esc(t("secTech"))}</h2><p class="sub">${esc(t("languages"))}</p>
     <div class="langbar">${langRows}</div>
