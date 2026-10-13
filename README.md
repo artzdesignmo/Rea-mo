@@ -4,7 +4,7 @@
 
 ## Features
 
-- **GitHub repo analysis** (100% client-side via `api.github.com`): overview (stars, forks, license, size), language breakdown bars, detected frameworks (from `package.json` + filenames), file-structure stats, project signals (CI, tests, Docker, docs), and a verdict section with clearly-labeled heuristics.
+- **GitHub repo analysis** (100% client-side via `api.github.com`): overview (stars, forks, license, size), releases (latest version with direct download links + previous versions), language breakdown bars, detected frameworks (from `package.json` + filenames), file-structure stats, project signals (CI, tests, Docker, docs), and a verdict section with clearly-labeled heuristics.
 - **Website analysis**: fetches public HTML through CORS proxies, then extracts title/meta/headings, resource counts, framework fingerprints (React, Next.js, Vue, WordPress, Shopify, Tailwind, …), and internal vs external link ratio.
 - **Optional AI interpretation (BYOK)**: plug in your own OpenAI-compatible endpoint + API key (stored only in your browser's localStorage) for a plain-language verdict. The tool is fully useful without a key — this is an add-on, never a requirement.
 - **Honest by design**: no fake results, no fake "AI thinking" spinners, heuristic observations are always labeled as heuristic.
